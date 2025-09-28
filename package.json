@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "build": "esbuild scripts/index.js --bundle --minify --outfile=scripts/bundle.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.10"
+  }
+}
