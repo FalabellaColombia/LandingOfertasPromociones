@@ -1,0 +1,34 @@
+name: Update JSON Cache
+
+on:
+  schedule:
+    # Corre de 7:00 a 23:00 cada hora
+    - cron: "0 7-23 * * *"
+    # Corre a las 00:00 (medianoche), pero no entre 1 y 6 am
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+ contents: write   # 👈 necesario para poder hacer commit/push
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout data-cache branch
+        uses: actions/checkout@v3
+        with:
+          ref: data-cache
+          token: ${{ secrets.GITHUB_TOKEN }}  
+
+      - name: Fetch API
+        run: |
+          curl -sL "https://script.google.com/macros/s/AKfycbx2sOSzU9HlAfSvcFGTVrnyND_L0gCSpllDfPigEjHyyBc20RpK3kPGTUbqm_MeQdSRHg/exec" > data.json
+
+      - name: Commit & Push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add data.json
+          git commit -m "update data.json" || echo "no changes"
+          git push origin data-cache
