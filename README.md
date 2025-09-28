@@ -227,13 +227,13 @@ Esto permite revisar la información y el diseño sin arriesgar la data real.
 [Surge](https://surge.sh) es una herramienta de línea de comandos que permite desplegar sitios estáticos (HTML, CSS, JS, JSON) de forma rápida y gratuita.  
 Es ideal para crear un **entorno temporal de pruebas (staging)** y compartir la URL resultante con el equipo.
 
-#### Instala Surge de forma global con:
+#### Instala Surge de forma global
 
 ```js
 npm install --global surge
 ```
 
-#### Ejecuta
+#### Ejecuta Surge
 
 ```js
 npx surge
