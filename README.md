@@ -239,6 +239,42 @@ npm install --global surge
 npx surge
 ```
 
+## Cachear el JSON con GitHub Actions
+
+Para evitar caídas por límite de uso de Google Sheets/App Script y mejorar la velocidad de carga, la landing siempre debe usar un JSON cacheado en lugar de consultar directamente la Sheet. Así, los usuarios reciben un archivo estático con los productos, sin sobrecargar la API.
+
+### Cómo funciona
+
+1. La Sheet se consulta automáticamente cada hora para obtener datos actualizados.
+2. Un workflow de GitHub Actions genera un archivo data.json con esos datos y lo guarda en la rama data-cache.
+3. La landing consume siempre data.json, evitando solicitudes directas a Google Sheets y mejorando el rendimiento.
+
+### Edición y actualización manual
+
+#### 1. Forzar la generación del JSON (Forzar cache)
+
+Si necesitas actualizar los datos manualmente:
+
+1. Abrir la pestaña Actions.
+
+3. Buscar el workflow llamado `Update JSON Cache`.
+
+4. Hacer click en el workflow y luego en Run workflow.
+Esto ejecutará la generación de `data.json` manualmente y refrescará la caché.
+
+#### 2. Modificar la configuración del workflow
+
+Si necesitas cambiar cómo se genera el JSON:
+
+1. Abrir el archivo del workflow en GitHub:
+
+```js
+.github/workflows/update-json.yml
+```
+
+2. Editar el YAML.
+3. Guardar los cambios y hacer commit; GitHub Actions aplicará la nueva configuración automáticamente.
+
 ## Recomendaciones
 
 Para que la landing funcione correctamente, es clave mantener la estructura de sheet sin modificaciones.
@@ -271,71 +307,3 @@ Proyecto creado por [@jeisongarzon](https://github.com/jeison0894). Se agradece 
 
 ##  Estado del Proyecto
 En desarrollo activo.
-
-
-// ------
-
-
-## Cacheo del JSON
-
-Para evitar caídas por límite de uso de Google Sheets/App Script y mejorar la velocidad de carga, **siempre es necesario cachear la respuesta del JSON**.  
-De esta manera, la landing no consulta directamente a la Google Sheet en cada visita, sino que sirve un archivo estático con los productos.
-
-### Configuración inicial del repositorio para activar github Actions
-
-0. Asegurate de primero crear una rama "data-cache"
-1. Ve a **Settings > Pages**.  
-2. En la sección *Build and deployment*, selecciona:  
-   - Source: Deploy from a branch.  
-   - Branch: `data-cache` → `/ (root)`.  
-3. Guarda los cambios.  
-4. Copia la URL pública que genera GitHub Pages, será algo como:  
-https://<tu-usuario>.github.io/<tu-repo>/data.json
-
-yaml
-Copiar código
-Esa será la URL a usar en la landing.
-
-### Implementación con GitHub Actions
-
-1. Crea una rama dedicada al cacheo (ej: `data-cache`).  
-2. Agrega en `.github/workflows/update-json.yml` el siguiente workflow:
-
-```yaml
-name: Update JSON Cache
-
-on:
-schedule:
- # Corre de 7:00 a 23:00 cada hora pero no de 1:00 a 6:00
- - cron: "0 7-23 * * *"
- - cron: "0 0 * * *"
-workflow_dispatch:
-
-permissions:
-contents: write 
-
-jobs:
-update:
- runs-on: ubuntu-latest
- steps:
-   - name: Checkout data-cache branch
-     uses: actions/checkout@v3
-     with:
-       ref: data-cache
-       token: ${{ secrets.GITHUB_TOKEN }}
-
-   - name: Fetch API
-     run: |
-       curl -sL "https://script.google.com/macros/s/AKfycbx2sOSzU9HlAfSvcFGTVrnyND_L0gCSpllDfPigEjHyyBc20RpK3kPGTUbqm_MeQdSRHg/exec" > data.json
-
-   - name: Commit & Push
-     run: |
-       git config user.name "github-actions"
-       git config user.email "github-actions@github.com"
-       git add data.json
-       git commit -m "update data.json" || echo "no changes"
-       git push origin data-cache
-Cada hora (en el rango definido) el archivo data.json será actualizado en la rama data-cache.
-
-Ese archivo será publicado automáticamente en GitHub Pages y podrá ser consumido en la landing
-```
