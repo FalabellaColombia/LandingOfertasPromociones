@@ -255,11 +255,11 @@ Para evitar caídas por límite de uso de Google Sheets/App Script y mejorar la 
 
 Si necesitas actualizar los datos manualmente:
 
-1. Abrir la pestaña Actions.
+1. Desde el dashboard principal del repositorio, ir a la pestaña Actions.
 
-3. Buscar el workflow llamado `Update JSON Cache`.
+2. Buscar el workflow llamado `Update JSON Cache`.
 
-4. Hacer click en el workflow y luego en Run workflow.
+3. Hacer click en el workflow y luego en Run workflow.
 Esto ejecutará la generación de `data.json` manualmente y refrescará la caché.
 
 #### 2. Modificar la configuración del workflow
