@@ -23,7 +23,7 @@ jobs:
 
       - name: Fetch API
         run: |
-          curl -sL "https://script.google.com/macros/s/AKfycbwuNW4FEovAReJ4cgvw5EqQpkDwHSEooQJYr4qR79QqWERh5XvuRKckCJk0BFPKgPuU/exec" > data.json
+          curl -sL "https://script.google.com/macros/s/AKfycbwQpcMUX4heTm-1UBbCG0unsWMY4ynjkSosIDga1F6hs_TAU-ZE5JHE6lYSLGUzYMtc/exec" > data.json
 
       - name: Commit & Push
         run: |
