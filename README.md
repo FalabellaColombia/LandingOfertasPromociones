@@ -175,7 +175,7 @@ function sendTextResponse(data) {
 - Ejecutar como: tú
 - Acceso: Cualquiera
 
-8. Copia la URL pública del Web App: Esta será la URL que debes usar como `PRODUCTS_DATA_URL` en `renderProducts.js`.
+8. Copia la URL pública del Web App: Esta corresponde a la API que acabas de crear y que podrás usar como `PRODUCTS_DATA_URL` en `renderProducts.js`. Sin embargo, como se explica en la sección “Cachear el JSON” más abajo, no se recomienda consumir directamente la API.
 
 #### AppSheet  
 
