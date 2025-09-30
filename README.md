@@ -121,72 +121,51 @@ Actualmente la landing se alimenta desde una Google Sheet, administrada a travé
 
 ```javascript
 /**
- * Endpoint GET para obtener los datos de la hoja de cálculo
- * Convierte las fechas 'startDate' y 'endDate' a la zona horaria de Colombia (UTC-5)
- * y genera un JSON para ser consumido por el frontend o API cliente.
+ * Endpoint GET para exponer datos de Google Sheets como API REST JSON
+ *
+ * Convierte fechas guardadas como "dd/MM/yyyy" (texto en la sheet)
+ * al formato ISO con offset fijo: "yyyy-MM-ddT00:00:00-05:00"
  */
-function doGet() {
-  const SHEET_ID = "TU_ID_DE_SHEET"; // ID de la hoja de cálculo
-  const SHEET_NAME = "LandingOfertasFalabella"; // Nombre de la pestaña a leer
+function doGet(e) {
+  const SHEET_ID = "1VlCIfwT7tEIpFKBT5f9Fumxwb_aGT6rBRphvGLwQ8WM";
+  const SHEET_NAME = "LandingOfertasFalabella";
 
-  // Abrir la hoja de cálculo y obtener la hoja específica
   const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
-  if (!sheet) return sendJsonResponse("ERROR: Sheet not found"); // Validación si no existe la hoja
+  if (!sheet) return sendTextResponse("ERROR: Sheet not found");
 
-  // Obtener todos los datos de la hoja como un array bidimensional
   const data = sheet.getDataRange().getValues();
-  if (data.length < 2) return sendJsonResponse([]); // Si solo hay encabezados o está vacía, retorna array vacío
+  if (data.length < 2) return sendTextResponse("[]");
 
-  // Separar encabezados de filas de datos
   const [headers, ...rows] = data;
+  const startDateIdx = headers.indexOf("startDate");
+  const endDateIdx   = headers.indexOf("endDate");
 
-  // Obtener índices de las columnas de fechas para formatearlas
-  const startDateIndex = headers.indexOf('startDate');
-  const endDateIndex = headers.indexOf('endDate');
-
-  // Mapear cada fila a un objeto JSON
   const jsonData = rows.map(row => {
-    // Crear un objeto con todas las columnas excepto 'id'
     const obj = Object.fromEntries(
-      headers
-        .map((key, i) => [key, row[i]])
-        .filter(([key]) => key !== 'id') // Omitir la columna 'id' para optimización
+      headers.map((key, i) => {
+        let val = row[i];
+
+        // Procesar fechas en formato dd/MM/yyyy → yyyy-MM-ddT00:00:00-05:00 (Hora local)
+        if ((i === startDateIdx || i === endDateIdx) && typeof val === "string" && val.includes("/")) {
+          const [day, month, year] = val.split("/");
+          val = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}T00:00:00-05:00`;
+        }
+
+        return [key, val];
+      })
     );
 
-    // Formatear startDate a formato ISO con zona horaria UTC-5 (Colombia)
-    if (startDateIndex !== -1 && row[startDateIndex]) {
-      obj.startDate = Utilities.formatDate(
-        new Date(row[startDateIndex]),
-        'GMT-5',
-        "yyyy-MM-dd'T'HH:mm:ss'-05:00'"
-      );
-    }
-
-    // Formatear endDate a formato ISO con zona horaria UTC-5 (Colombia)
-    if (endDateIndex !== -1 && row[endDateIndex]) {
-      obj.endDate = Utilities.formatDate(
-        new Date(row[endDateIndex]),
-        'GMT-5',
-        "yyyy-MM-dd'T'HH:mm:ss'-05:00'"
-      );
-    }
-
-    return obj; // Retornar objeto con fechas ya formateadas
+    return obj;
   });
 
-  // Retornar el JSON final
-  return sendJsonResponse(jsonData);
+  return sendTextResponse(JSON.stringify(jsonData));
 }
 
-/**
- * Función helper para devolver un JSON al cliente
- * @param {any} data - Datos que se convertirán a JSON
- * @returns {ContentService.TextOutput} - JSON listo para consumo
- */
-function sendJsonResponse(data) {
-  return ContentService.createTextOutput(JSON.stringify(data))
-                       .setMimeType(ContentService.MimeType.JSON);
+function sendTextResponse(data) {
+  return ContentService.createTextOutput(data)
+    .setMimeType(ContentService.MimeType.JSON);
 }
+
 ```
 
 5. Reemplaza `TU_ID_DE_SHEET` por el ID real del documento.
