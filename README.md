@@ -276,7 +276,7 @@ Para que la landing funcione correctamente, es clave mantener la estructura de s
 
 ### Mantenimiento
 - Nunca aplicar scripts adicionales en la Google Sheet.  
-  Ejecutar Apps Script directamente sobre la hoja puede corromper el archivo y volverlo irrecuperable.  
+  Ejecutar demasiados Apps Script directamente sobre la hoja puede corromper el archivo y volverlo irrecuperable.  
 - No cargar archivos masivos directamente en la Sheet de producción.  
   Siempre realizar pruebas en un staging (beta) o con una copia de la hoja antes de pasar cambios a producción.  
 
