@@ -108,9 +108,9 @@ Actualmente la landing se alimenta desde una Google Sheet, administrada a travé
 | `title`            | Título o nombre del llamado. |
 | `urlProduct`       | URL a la PDP o PLP del producto. |
 | `urlImage`         | URL de la imagen del producto. |
-| `startDate`        | Fecha de inicio de la oferta en formato `YYYY-MM-DD` (zona horaria UTC-5). |
-| `endDate`          | Fecha de finalización de la oferta en formato `YYYY-MM-DD` (zona horaria UTC-5). |
-| `offerState`       | Estado de la oferta. Debe ser uno de los siguientes valores: <br> _(vacío)_, LANZAMIENTO, SOLO X 24 HORAS, SOLO X 48 HORAS, AGOTADO. |
+| `startDate`        | Fecha de inicio de la oferta en formato `DD/MM/AAAA` (zona horaria UTC-5). |
+| `endDate`          | Fecha de finalización de la oferta en formato `DD/MM/AAAA` (zona horaria UTC-5). |
+| `offerState`       | Estado de la oferta. Debe ser uno de los siguientes valores: <br> _(vacío)_, LANZAMIENTO, SOLO X, AGOTADO. |
 | `isProductHidden`  | Valor booleano (`true` o `false`). En el menu Insertar de Google Sheet crea una **casilla de verificación**. Si es `true`, el producto **no se muestra** en la landing. |
 
 3. Agrega productos desde la segunda fila.
