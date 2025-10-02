@@ -1,5 +1,4 @@
 name: Update JSON Cache
-
 on:
   schedule:
     # Corre de 7:00 a 23:00 cada hora
@@ -9,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
- contents: write   # 👈 necesario para poder hacer commit/push
+  contents: write
 
 jobs:
   update:
@@ -19,16 +18,50 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: data-cache
-          token: ${{ secrets.GITHUB_TOKEN }}  
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fetch API
+      - name: Fetch and Validate API
+        id: fetch
         run: |
-          curl -sL "https://script.google.com/macros/s/AKfycbwQpcMUX4heTm-1UBbCG0unsWMY4ynjkSosIDga1F6hs_TAU-ZE5JHE6lYSLGUzYMtc/exec" > data.json
+          # Descargar respuesta
+          curl -sL "https://script.google.com/macros/s/AKfycbxQ_5kpsZXND4mAHJdO39wUZm3A-G8Nz_zJMcdtoh05f9sk7CgFc2ommgKpuFEWvNRk/exec" > temp_data.json
+          
+          # Inicializar como válido
+          VALID="true"
+          
+          # Validar que sea JSON válido
+          if ! jq empty temp_data.json 2>/dev/null; then
+            echo "ERROR: Respuesta no es JSON valido"
+            echo "Contenido recibido:"
+            head -n 20 temp_data.json
+            VALID="false"
+          # Verificar si es un array
+          elif ! jq -e 'type == "array"' temp_data.json > /dev/null 2>&1; then
+            echo "ERROR: Respuesta no es un array"
+            echo "JSON recibido:"
+            jq '.' temp_data.json
+            VALID="false"
+          else
+            echo "JSON valido recibido"
+            mv temp_data.json data.json
+          fi
+          
+          # Limpiar archivo temporal si existe
+          rm -f temp_data.json
+          
+          # Establecer output
+          echo "valid=$VALID" >> $GITHUB_OUTPUT
 
       - name: Commit & Push
+        if: steps.fetch.outputs.valid == 'true'
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add data.json
           git commit -m "update data.json" || echo "no changes"
           git push origin data-cache
+
+      - name: Report status
+        if: steps.fetch.outputs.valid == 'false'
+        run: |
+          echo "No se actualizo data.json debido a respuesta invalida"
