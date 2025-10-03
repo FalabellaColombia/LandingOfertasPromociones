@@ -1,10 +1,10 @@
 name: Update JSON Cache
 on:
   schedule:
-    # Corre de 7:00 a 23:00 cada hora
-    - cron: "0 7-23 * * *"
-    # Corre a las 00:00 (medianoche), pero no entre 1 y 6 am
-    - cron: "0 0 * * *"
+    # 7 AM – 11:59 PM hora Colombia → 12:00 – 04:59 UTC
+    - cron: "0 12-23 * * *"
+    # 12 AM hora Colombia → 05:00 UTC
+    - cron: "0 5 * * *"
   workflow_dispatch:
 
 permissions:
